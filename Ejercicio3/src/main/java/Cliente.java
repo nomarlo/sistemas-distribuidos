@@ -12,7 +12,13 @@ public class Cliente extends JFrame implements ActionListener {
     private JTextField campoPrimerValor, campoSegundoValor, campoResultado;
     private JLabel etiquetaPrimerNumero, etiquetaSegundoNumero, etiquetaResultado;
 
-    private JDesktopPane desktopPane = new JDesktopPane();
+    JMenuBar barraMenu;
+    JMenu menuArchivo, menuOperaciones, menuAyuda;
+    JMenuItem itemSalir, itemBasicas, itemIntermedias, itemAvanzadas, itemAcercaDe;
+
+    JInternalFrame frameBasicas, frameIntermedias;
+
+    private JDesktopPane desktopPane;
 
 //    public Cliente() {
 //        super();
@@ -21,12 +27,57 @@ public class Cliente extends JFrame implements ActionListener {
 //    }
 
     private void configurarVentana() {
-        this.setTitle("Cliente");
-        this.setSize(500, 250);
-        this.setLocationRelativeTo(null);
-        this.setLayout(null);
-        this.setResizable(false);
+        desktopPane = new JDesktopPane();
+//        this.setTitle("Cliente");
+//        this.setSize(500, 250);
+//        this.setLocationRelativeTo(null);
+//        this.setLayout(null);
+//        this.setResizable(false);
+        this.add(desktopPane, BorderLayout.CENTER);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+
+    public void inicializarMenu() {
+        barraMenu = new JMenuBar();
+
+        menuArchivo = new JMenu("Archivo");
+        itemSalir = new JMenuItem("Salir");
+        itemSalir.addActionListener(this);
+        menuArchivo.add(itemSalir);
+        barraMenu.add(menuArchivo);
+
+        menuOperaciones = new JMenu("Operaciones");
+        itemBasicas = new JMenuItem("Básicas");
+        itemBasicas.addActionListener(this);
+        itemIntermedias = new JMenuItem("Intermedias");
+        itemIntermedias.addActionListener(this);
+        itemAvanzadas = new JMenuItem("Avanzadas");
+        itemAvanzadas.addActionListener(this);
+        menuOperaciones.add(itemBasicas);
+        menuOperaciones.add(itemIntermedias);
+        menuOperaciones.add(itemAvanzadas);
+        barraMenu.add(menuOperaciones);
+
+        menuAyuda = new JMenu("Ayuda");
+        itemAcercaDe = new JMenuItem("Acerca de");
+        itemAcercaDe.addActionListener(this);
+        menuAyuda.add(itemAcercaDe);
+        barraMenu.add(menuAyuda);
+
+        setJMenuBar(barraMenu);
+
+    }
+
+    private void inicializarFramesInternos() {
+        frameBasicas = new JInternalFrame("Frame 1", true, true, true, true);
+        frameBasicas.getContentPane().setLayout(new FlowLayout());
+//        frameBasicas.getContentPane().add(new JLabel("Frame 1  contents..."));
+//        frameBasicas.getContentPane().add(new JLabel("Frame 2  contents..."));
+        frameBasicas.pack();
+        frameBasicas.setVisible(true);
+
+        desktopPane.add(frameBasicas);
     }
 
     private void inicializarComponentes() {
@@ -48,7 +99,8 @@ public class Cliente extends JFrame implements ActionListener {
         botonDesviacionEstandar = new JButton();
 
         campoPrimerValor.setText("");
-        campoPrimerValor.setBounds(50, 50, 100, 25);
+        campoPrimerValor.setColumns(5);
+//        campoPrimerValor.setBounds(50, 50, 1000, 250);
 
         campoSegundoValor.setText("");
         campoSegundoValor.setBounds(200, 50, 100, 25);
@@ -89,54 +141,32 @@ public class Cliente extends JFrame implements ActionListener {
         etiquetaResultado.setBounds(350, 20, 100, 25);
 
 
-        this.add(campoPrimerValor);
-        this.add(campoSegundoValor);
-        this.add(campoResultado);
-
-        this.add(botonSuma);
-        this.add(botonResta);
-        this.add(botonDividir);
-        this.add(botonMultiplicar);
-        this.add(botonSumaElementos);
-        this.add(botonPromedio);
-        this.add(botonDesviacionEstandar);
-
-        this.add(etiquetaPrimerNumero);
-        this.add(etiquetaSegundoNumero);
-        this.add(etiquetaResultado);
+        frameBasicas.getContentPane().add(campoPrimerValor);
+//        this.add(campoSegundoValor);
+//        this.add(campoResultado);
+//
+        frameBasicas.getContentPane().add(botonSuma);
+//        this.add(botonResta);
+//        this.add(botonDividir);
+//        this.add(botonMultiplicar);
+//        this.add(botonSumaElementos);
+//        this.add(botonPromedio);
+//        this.add(botonDesviacionEstandar);
+//
+//        this.add(etiquetaPrimerNumero);
+//        this.add(etiquetaSegundoNumero);
+//        this.add(etiquetaResultado);
     }
 
     public Cliente() {
-        JInternalFrame frame1 = new JInternalFrame("Frame 1", true, true, true,
-                true);
 
-        JInternalFrame frame2 = new JInternalFrame("Frame 2", true, true, true,
-                true);
+        configurarVentana();
 
-        frame1.getContentPane().add(new JLabel("Frame 1  contents..."));
-        frame1.pack();
-        frame1.setVisible(true);
+        inicializarMenu();
 
-        frame2.getContentPane().add(new JLabel("Frame 2  contents..."));
-        frame2.pack();
-        frame2.setVisible(true);
+        inicializarFramesInternos();
 
-        int x2 = frame1.getX() + frame1.getWidth() + 10;
-        int y2 = frame1.getY();
-        frame2.setLocation(x2, y2);
-
-        JMenuBar barra=new JMenuBar();
-        JMenu archivo=new JMenu("Archivo");
-        JMenuItem nuevo=new JMenuItem("Nuevo");
-
-        desktopPane.add(frame1);
-        desktopPane.add(frame2);
-
-        archivo.add(nuevo);
-        barra.add(archivo);
-        setJMenuBar(barra);
-
-        this.add(desktopPane, BorderLayout.CENTER);
+        inicializarComponentes();
 
         this.setMinimumSize(new Dimension(300, 300));
     }
@@ -227,19 +257,14 @@ public class Cliente extends JFrame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == botonSuma) {
-            try {
-                campoResultado.setText(getSuma());
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+        if (e.getSource() == itemBasicas) {
+            System.out.println("pp");
+            frameBasicas.setVisible(false);
+//                campoResultado.setText(getSuma());
 
-        } else if (e.getSource() == botonResta) {
-            try {
-                campoResultado.setText(getResta());
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+        } else if (e.getSource() == itemIntermedias) {
+            frameBasicas.setVisible(true);
+//                campoResultado.setText(getResta());
         } else if (e.getSource() == botonDividir) {
             try {
                 campoResultado.setText(getDividir());
