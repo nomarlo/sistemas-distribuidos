@@ -2,33 +2,46 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Arc2D;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 
 public class Cliente extends JFrame implements ActionListener {
 
     private JButton botonSuma, botonResta, botonDividir, botonMultiplicar, botonSumaElementos, botonPromedio, botonDesviacionEstandar;
-    private JTextField campoPrimerValor, campoSegundoValor, campoResultado;
-    private JLabel etiquetaPrimerNumero, etiquetaSegundoNumero, etiquetaResultado;
+    private JTextField campoPrimerValor, campoSegundoValor, campoResultado, campoListaNumeros, campoResultado2;
+    private JLabel etiquetaPrimerNumero, etiquetaSegundoNumero, etiquetaResultado,etiquetaResultado2, etiquetaNumeros;
+    private JPanel panelOperandosBasicas, panelBotonesBasicas, panelOperandosIntermedias, panelBotonesIntermedias;
 
-    JMenuBar barraMenu;
-    JMenu menuArchivo, menuOperaciones, menuAyuda;
-    JMenuItem itemSalir, itemBasicas, itemIntermedias, itemAvanzadas, itemAcercaDe;
+    private JMenuBar barraMenu;
+    private JMenu menuArchivo, menuOperaciones, menuAyuda;
+    private JMenuItem itemSalir, itemBasicas, itemIntermedias, itemAvanzadas, itemAcercaDe;
 
-    JInternalFrame frameBasicas, frameIntermedias;
+    private JInternalFrame frameBasicas, frameIntermedias;
+    private Operaciones operaciones;
 
     private JDesktopPane desktopPane;
 
-//    public Cliente() {
-//        super();
-//        configurarVentana();
-//        inicializarComponentes();
-//    }
+    private void inicializarObjetoOperaciones() {
+        try {
+            operaciones = (Operaciones) Naming.lookup("operaciones");
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void configurarVentana() {
         desktopPane = new JDesktopPane();
-//        this.setTitle("Cliente");
+        this.setTitle("Cliente");
 //        this.setSize(500, 250);
 //        this.setLocationRelativeTo(null);
 //        this.setLayout(null);
@@ -69,15 +82,32 @@ public class Cliente extends JFrame implements ActionListener {
 
     }
 
+    private void inicializarPaneles() {
+        panelOperandosBasicas = new JPanel(new FlowLayout());
+        panelBotonesBasicas = new JPanel(new FlowLayout());
+
+        panelOperandosIntermedias = new JPanel(new FlowLayout());
+        panelBotonesIntermedias = new JPanel(new FlowLayout());
+    }
+
     private void inicializarFramesInternos() {
-        frameBasicas = new JInternalFrame("Frame 1", true, true, true, true);
-        frameBasicas.getContentPane().setLayout(new FlowLayout());
-//        frameBasicas.getContentPane().add(new JLabel("Frame 1  contents..."));
-//        frameBasicas.getContentPane().add(new JLabel("Frame 2  contents..."));
+
+        frameBasicas = new JInternalFrame("Operaciones básicas", true, true, true, true);
+        frameBasicas.getContentPane().setLayout(new BoxLayout(frameBasicas.getContentPane(), BoxLayout.Y_AXIS));
+        frameBasicas.getContentPane().add(panelOperandosBasicas);
+        frameBasicas.getContentPane().add(panelBotonesBasicas);
         frameBasicas.pack();
-        frameBasicas.setVisible(true);
+        frameBasicas.setVisible(false);
+
+        frameIntermedias = new JInternalFrame("Operaciones intermedias", true, true, true, true);
+        frameIntermedias.getContentPane().setLayout(new BoxLayout(frameIntermedias.getContentPane(), BoxLayout.Y_AXIS));
+        frameIntermedias.getContentPane().add(panelOperandosIntermedias);
+        frameIntermedias.getContentPane().add(panelBotonesIntermedias);
+        frameIntermedias.pack();
+        frameIntermedias.setVisible(false);
 
         desktopPane.add(frameBasicas);
+        desktopPane.add(frameIntermedias);
     }
 
     private void inicializarComponentes() {
@@ -86,9 +116,15 @@ public class Cliente extends JFrame implements ActionListener {
         campoSegundoValor = new JTextField();
         campoResultado = new JTextField();
 
-        etiquetaPrimerNumero = new JLabel("Primer numero");
-        etiquetaSegundoNumero = new JLabel("Segundo numero");
-        etiquetaResultado = new JLabel("Resultado");
+        campoListaNumeros = new JTextField();
+        campoResultado2 = new JTextField();
+
+        etiquetaPrimerNumero = new JLabel("Primer numero: ");
+        etiquetaSegundoNumero = new JLabel("Segundo numero: ");
+        etiquetaResultado = new JLabel("Resultado: ");
+
+        etiquetaNumeros = new JLabel("Números (separados por comas): ");
+        etiquetaResultado2 = new JLabel("Resultado: ");
 
         botonSuma = new JButton();
         botonResta = new JButton();
@@ -100,75 +136,83 @@ public class Cliente extends JFrame implements ActionListener {
 
         campoPrimerValor.setText("");
         campoPrimerValor.setColumns(5);
-//        campoPrimerValor.setBounds(50, 50, 1000, 250);
 
         campoSegundoValor.setText("");
-        campoSegundoValor.setBounds(200, 50, 100, 25);
+        campoSegundoValor.setColumns(5);
 
         campoResultado.setText("");
-        campoResultado.setBounds(350, 50, 100, 25);
+        campoResultado.setColumns(5);
+
+        campoListaNumeros.setText("");
+        campoListaNumeros.setColumns(5);
+
+        campoResultado2.setText("");
+        campoResultado2.setColumns(5);
 
         botonSuma.setText("Suma");
-        botonSuma.setBounds(50, 100, 75, 30);
         botonSuma.addActionListener(this);
 
         botonResta.setText("Resta");
-        botonResta.setBounds(135, 100, 75, 30);
         botonResta.addActionListener(this);
 
         botonDividir.setText("Dividir");
-        botonDividir.setBounds(220, 100, 75, 30);
         botonDividir.addActionListener(this);
 
         botonMultiplicar.setText("Multiplicar");
-        botonMultiplicar.setBounds(305, 100, 95, 30);
         botonMultiplicar.addActionListener(this);
 
         botonSumaElementos.setText("Suma elementos");
-        botonSumaElementos.setBounds(50, 150, 140, 30);
         botonSumaElementos.addActionListener(this);
 
         botonPromedio.setText("Promedio");
-        botonPromedio.setBounds(200, 150, 100, 30);
         botonPromedio.addActionListener(this);
 
         botonDesviacionEstandar.setText("Desviación estándar");
-        botonDesviacionEstandar.setBounds(310, 150, 150, 30);
         botonDesviacionEstandar.addActionListener(this);
 
-        etiquetaPrimerNumero.setBounds(50, 20, 100, 25);
-        etiquetaSegundoNumero.setBounds(200, 20, 100, 25);
-        etiquetaResultado.setBounds(350, 20, 100, 25);
+        panelOperandosBasicas.add(etiquetaPrimerNumero);
+        panelOperandosBasicas.add(campoPrimerValor);
+        panelOperandosBasicas.add(etiquetaSegundoNumero);
+        panelOperandosBasicas.add(campoSegundoValor);
+        panelOperandosBasicas.add(etiquetaResultado);
+        panelOperandosBasicas.add(campoResultado);
+
+        panelBotonesBasicas.add(botonSuma);
+        panelBotonesBasicas.add(botonResta);
+        panelBotonesBasicas.add(botonDividir);
+        panelBotonesBasicas.add(botonMultiplicar);
 
 
-        frameBasicas.getContentPane().add(campoPrimerValor);
-//        this.add(campoSegundoValor);
-//        this.add(campoResultado);
-//
-        frameBasicas.getContentPane().add(botonSuma);
-//        this.add(botonResta);
-//        this.add(botonDividir);
-//        this.add(botonMultiplicar);
-//        this.add(botonSumaElementos);
-//        this.add(botonPromedio);
-//        this.add(botonDesviacionEstandar);
-//
-//        this.add(etiquetaPrimerNumero);
-//        this.add(etiquetaSegundoNumero);
-//        this.add(etiquetaResultado);
+        panelOperandosIntermedias.add(etiquetaNumeros);
+        panelOperandosIntermedias.add(campoListaNumeros);
+        panelOperandosIntermedias.add(etiquetaResultado2);
+        panelOperandosIntermedias.add(campoResultado2);
+
+        panelBotonesIntermedias.add(botonSumaElementos);
+        panelBotonesIntermedias.add(botonPromedio);
+        panelBotonesIntermedias.add(botonDesviacionEstandar);
+
+
     }
 
     public Cliente() {
+
+        super();
+
+        inicializarObjetoOperaciones();
 
         configurarVentana();
 
         inicializarMenu();
 
-        inicializarFramesInternos();
+        inicializarPaneles();
 
         inicializarComponentes();
 
+        inicializarFramesInternos();
+
         this.setMinimumSize(new Dimension(300, 300));
+
     }
 
     public static void main(String args[]) throws UnknownHostException, IOException {
@@ -229,19 +273,19 @@ public class Cliente extends JFrame implements ActionListener {
     }
 
     private String getSuma() throws UnknownHostException, IOException {
-        return getOperacion("suma");
+        return Double.toString(operaciones.suma(Double.parseDouble(campoPrimerValor.getText()), Double.parseDouble(campoSegundoValor.getText())));
     }
 
     private String getResta() throws UnknownHostException, IOException {
-        return getOperacion("resta");
+        return Double.toString(operaciones.resta(Double.parseDouble(campoPrimerValor.getText()), Double.parseDouble(campoSegundoValor.getText())));
     }
 
     private String getDividir() throws UnknownHostException, IOException {
-        return getOperacion("dividir");
+        return Double.toString(operaciones.dividir(Double.parseDouble(campoPrimerValor.getText()), Double.parseDouble(campoSegundoValor.getText())));
     }
 
     private String getMultiplicar() throws UnknownHostException, IOException {
-        return getOperacion("multiplicar");
+        return Double.toString(operaciones.multiplicar(Double.parseDouble(campoPrimerValor.getText()), Double.parseDouble(campoSegundoValor.getText())));
     }
 
     private String getSumaElementos() throws UnknownHostException, IOException {
@@ -258,13 +302,24 @@ public class Cliente extends JFrame implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == itemBasicas) {
-            System.out.println("pp");
-            frameBasicas.setVisible(false);
-//                campoResultado.setText(getSuma());
+            frameBasicas.setVisible(true);
+            frameIntermedias.setVisible(false);
 
         } else if (e.getSource() == itemIntermedias) {
-            frameBasicas.setVisible(true);
-//                campoResultado.setText(getResta());
+            frameBasicas.setVisible(false);
+            frameIntermedias.setVisible(true);
+        } else if (e.getSource() == botonSuma) {
+            try {
+                campoResultado.setText(getSuma());
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        } else if (e.getSource() == botonResta) {
+            try {
+                campoResultado.setText(getResta());
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         } else if (e.getSource() == botonDividir) {
             try {
                 campoResultado.setText(getDividir());
