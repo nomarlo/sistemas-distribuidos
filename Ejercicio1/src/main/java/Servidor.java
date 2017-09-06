@@ -10,28 +10,6 @@ import java.util.*;
 public class Servidor {
     public static final int PUERTO = 5000;
 
-    private static Date getFecha() {
-        GregorianCalendar calendarioGregoriano = new GregorianCalendar();
-        return calendarioGregoriano.getTime();
-    }
-
-
-    public static String metodoUno() {
-        Date fecha = getFecha();
-
-        DateFormat formatoFecha = DateFormat.getDateInstance();
-
-        return formatoFecha.format(fecha);
-    }
-
-    public static String metodoDos() {
-        Date fecha = getFecha();
-
-        DateFormat formatoHora = DateFormat.getTimeInstance();
-
-        return formatoHora.format(fecha);
-    }
-
     public static void main(String args[]) throws IOException {
 
         ServerSocket serverSocket = new ServerSocket(PUERTO);
