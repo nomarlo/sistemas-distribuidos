@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Arc2D;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.Socket;
@@ -10,6 +9,9 @@ import java.net.UnknownHostException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 public class Cliente extends JFrame implements ActionListener {
 
@@ -289,15 +291,15 @@ public class Cliente extends JFrame implements ActionListener {
     }
 
     private String getSumaElementos() throws UnknownHostException, IOException {
-        return getOperacionElementos("sumaElementos");
+        return Double.toString(operaciones.suma(generarArrayList(campoListaNumeros.getText())));
     }
 
     private String getPromedio() throws UnknownHostException, IOException {
-        return getOperacionElementos("promedio");
+        return Double.toString(operaciones.promedio(generarArrayList(campoListaNumeros.getText())));
     }
 
     private String getDesviacionEstandar() throws UnknownHostException, IOException {
-        return getOperacionElementos("desviacionEstandar");
+        return Double.toString(operaciones.desviacionEstandar(generarArrayList(campoListaNumeros.getText())));
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -334,22 +336,35 @@ public class Cliente extends JFrame implements ActionListener {
             }
         } else if (e.getSource() == botonSumaElementos) {
             try {
-                campoResultado.setText(getSumaElementos());
+                campoResultado2.setText(getSumaElementos());
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
         } else if (e.getSource() == botonPromedio) {
             try {
-                campoResultado.setText(getPromedio());
+                campoResultado2.setText(getPromedio());
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
         } else if (e.getSource() == botonDesviacionEstandar) {
             try {
-                campoResultado.setText(getDesviacionEstandar());
+                campoResultado2.setText(getDesviacionEstandar());
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
         }
+    }
+
+    private static Double[] generarArrayList(String cadena) {
+        List<Double> elementos = new ArrayList<Double>();
+
+        StringTokenizer s = new StringTokenizer(cadena, ",");
+
+        while (s.hasMoreTokens()) {
+            elementos.add(Double.parseDouble(s.nextToken()));
+        }
+
+
+        return elementos.toArray(new Double[elementos.size()]);
     }
 }
