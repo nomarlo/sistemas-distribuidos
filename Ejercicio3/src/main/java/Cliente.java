@@ -1,3 +1,9 @@
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -15,19 +21,22 @@ import java.util.StringTokenizer;
 
 public class Cliente extends JFrame implements ActionListener {
 
-    private JButton botonSuma, botonResta, botonDividir, botonMultiplicar, botonSumaElementos, botonPromedio, botonDesviacionEstandar;
-    private JTextField campoPrimerValor, campoSegundoValor, campoResultado, campoListaNumeros, campoResultado2;
-    private JLabel etiquetaPrimerNumero, etiquetaSegundoNumero, etiquetaResultado,etiquetaResultado2, etiquetaNumeros;
-    private JPanel panelOperandosBasicas, panelBotonesBasicas, panelOperandosIntermedias, panelBotonesIntermedias;
+    private JButton botonSuma, botonResta, botonDividir, botonMultiplicar, botonSumaElementos, botonPromedio, botonDesviacionEstandar, botonGraficar;
+    private JTextField campoPrimerValor, campoSegundoValor, campoResultado, campoListaNumeros, campoResultado2, campoListaNumeros2;
+    private JLabel etiquetaPrimerNumero, etiquetaSegundoNumero, etiquetaResultado, etiquetaResultado2, etiquetaNumeros, etiquetaNumeros2;
+    private JPanel panelOperandosBasicas, panelBotonesBasicas, panelOperandosIntermedias, panelBotonesIntermedias, panelOperandosAvanzadas, panelBotonesAvanzadas;
 
     private JMenuBar barraMenu;
     private JMenu menuArchivo, menuOperaciones, menuAyuda;
     private JMenuItem itemSalir, itemBasicas, itemIntermedias, itemAvanzadas, itemAcercaDe;
 
-    private JInternalFrame frameBasicas, frameIntermedias;
+    private JInternalFrame frameBasicas, frameIntermedias, frameAvanzadas;
     private Operaciones operaciones;
 
     private JDesktopPane desktopPane;
+
+    JFreeChart grafica;
+    DefaultCategoryDataset datos;
 
     private void inicializarObjetoOperaciones() {
         try {
@@ -90,6 +99,9 @@ public class Cliente extends JFrame implements ActionListener {
 
         panelOperandosIntermedias = new JPanel(new FlowLayout());
         panelBotonesIntermedias = new JPanel(new FlowLayout());
+
+        panelOperandosAvanzadas = new JPanel(new FlowLayout());
+        panelBotonesAvanzadas = new JPanel(new FlowLayout());
     }
 
     private void inicializarFramesInternos() {
@@ -108,8 +120,16 @@ public class Cliente extends JFrame implements ActionListener {
         frameIntermedias.pack();
         frameIntermedias.setVisible(false);
 
+        frameAvanzadas = new JInternalFrame("Operaciones avanzadas", true, true, true, true);
+        frameAvanzadas.getContentPane().setLayout(new BoxLayout(frameAvanzadas.getContentPane(), BoxLayout.Y_AXIS));
+        frameAvanzadas.getContentPane().add(panelOperandosAvanzadas);
+        frameAvanzadas.getContentPane().add(panelBotonesAvanzadas);
+        frameAvanzadas.pack();
+        frameAvanzadas.setVisible(false);
+
         desktopPane.add(frameBasicas);
         desktopPane.add(frameIntermedias);
+        desktopPane.add(frameAvanzadas);
     }
 
     private void inicializarComponentes() {
@@ -119,6 +139,7 @@ public class Cliente extends JFrame implements ActionListener {
         campoResultado = new JTextField();
 
         campoListaNumeros = new JTextField();
+        campoListaNumeros2 = new JTextField();
         campoResultado2 = new JTextField();
 
         etiquetaPrimerNumero = new JLabel("Primer numero: ");
@@ -128,6 +149,8 @@ public class Cliente extends JFrame implements ActionListener {
         etiquetaNumeros = new JLabel("Números (separados por comas): ");
         etiquetaResultado2 = new JLabel("Resultado: ");
 
+        etiquetaNumeros2 = new JLabel("Número de visitas por día (separados por comas): ");
+
         botonSuma = new JButton();
         botonResta = new JButton();
         botonDividir = new JButton();
@@ -135,6 +158,7 @@ public class Cliente extends JFrame implements ActionListener {
         botonSumaElementos = new JButton();
         botonPromedio = new JButton();
         botonDesviacionEstandar = new JButton();
+        botonGraficar = new JButton();
 
         campoPrimerValor.setText("");
         campoPrimerValor.setColumns(5);
@@ -147,6 +171,9 @@ public class Cliente extends JFrame implements ActionListener {
 
         campoListaNumeros.setText("");
         campoListaNumeros.setColumns(5);
+
+        campoListaNumeros2.setText("");
+        campoListaNumeros2.setColumns(5);
 
         campoResultado2.setText("");
         campoResultado2.setColumns(5);
@@ -172,6 +199,9 @@ public class Cliente extends JFrame implements ActionListener {
         botonDesviacionEstandar.setText("Desviación estándar");
         botonDesviacionEstandar.addActionListener(this);
 
+        botonGraficar.setText("Graficar");
+        botonGraficar.addActionListener(this);
+
         panelOperandosBasicas.add(etiquetaPrimerNumero);
         panelOperandosBasicas.add(campoPrimerValor);
         panelOperandosBasicas.add(etiquetaSegundoNumero);
@@ -193,6 +223,11 @@ public class Cliente extends JFrame implements ActionListener {
         panelBotonesIntermedias.add(botonSumaElementos);
         panelBotonesIntermedias.add(botonPromedio);
         panelBotonesIntermedias.add(botonDesviacionEstandar);
+
+        panelOperandosAvanzadas.add(campoListaNumeros2);
+
+        panelBotonesAvanzadas.add(etiquetaNumeros2);
+        panelBotonesAvanzadas.add(botonGraficar);
 
 
     }
@@ -302,14 +337,37 @@ public class Cliente extends JFrame implements ActionListener {
         return Double.toString(operaciones.desviacionEstandar(generarArrayList(campoListaNumeros.getText())));
     }
 
+    private void graficar() {
+        datos = new DefaultCategoryDataset();
+        Double[] valores = generarArrayList(campoListaNumeros2.getText());
+
+        int i=1;
+        for (double valor : valores) {
+            datos.addValue(valor, "F1", "Dia" + Integer.toString(i));
+            i++;
+        }
+
+        grafica = ChartFactory.createBarChart("Visitas diarias", "Días", "Visitas", datos, PlotOrientation.HORIZONTAL, true, true, false);
+
+        ChartPanel panelGrafica = new ChartPanel(grafica);
+        panelBotonesAvanzadas.add(panelGrafica);
+
+        frameAvanzadas.revalidate();
+    }
+
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == itemBasicas) {
             frameBasicas.setVisible(true);
             frameIntermedias.setVisible(false);
-
+            frameAvanzadas.setVisible(false);
         } else if (e.getSource() == itemIntermedias) {
             frameBasicas.setVisible(false);
+            frameAvanzadas.setVisible(false);
             frameIntermedias.setVisible(true);
+        } else if (e.getSource() == itemAvanzadas) {
+            frameBasicas.setVisible(false);
+            frameIntermedias.setVisible(false);
+            frameAvanzadas.setVisible(true);
         } else if (e.getSource() == botonSuma) {
             try {
                 campoResultado.setText(getSuma());
@@ -352,6 +410,8 @@ public class Cliente extends JFrame implements ActionListener {
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
+        } else if (e.getSource() == botonGraficar) {
+            graficar();
         }
     }
 
