@@ -8,6 +8,8 @@ package com.ipn.mx.interfaces;
 import com.ipn.mx.entidades.Alumno;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  *
@@ -20,11 +22,11 @@ public interface AlumnoInterface extends Remote {
    
    public void actualizarAlumno(Alumno alumno) throws RemoteException;
    
-   public void listarAlumnos() throws RemoteException;
+   public ArrayList listarAlumnos() throws RemoteException, SQLException;
    
-   public void buscarAlumno(Alumno alumno) throws RemoteException;
+   public Alumno buscarAlumno(Alumno alumno) throws RemoteException;
    
-   public void buscarXEmail(String email) throws RemoteException;
+   public Alumno buscarXEmail(String email) throws RemoteException;
    
    
     
