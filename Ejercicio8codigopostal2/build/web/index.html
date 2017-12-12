@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <title>Codigo Postal</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript">
+            function enviarTramite(evt) {
+                valor = document.getElementById("codigo").value;
+                location.href = "/CodigoPostal/webresources/codigopostal/" + valor;
+                evt.preventDefault();
+                return true;
+            }
+        </script>
+    </head>
+    <body>
+        <noscript>Sorry, your browser does not support JavaScript!</noscript>
+        <form id="formCP" onsubmit="enviarTramite(event);">
+            <label>Codigo Postal:</label>
+            <input id="codigo" name="codigo" type="number"/>
+            <input id="boton" name="enviar" type="submit" value="Buscar">
+        </form>
+    </body>
+</html>
